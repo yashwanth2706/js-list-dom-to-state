@@ -13,7 +13,13 @@
     <input id="clearBtn" type="button" name="clearBtn" value="Clear">
     <ul id="root"></ul>
     <script>
-        let confirmClear = false;
+        const clearStates = {
+            IDLE : "idle",
+            CONFIRMING_CLEAR : "confirmingClear",
+            CONFIRMED : "cleared",
+        };
+
+        let confirmClear = clearStates.IDLE;
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -27,7 +33,7 @@
         }
 
         function resetClearState(){
-            confirmClear = false;
+            confirmClear = clearStates.IDLE;
             return;
         }
 
@@ -35,7 +41,7 @@
 
             const listItemName = document.getElementById("itemname").value.trim();
 
-            if(confirmClear){
+            if(confirmClear === clearStates.CONFIRMING_CLEAR){
                 resetClearState();
             }
 
@@ -57,18 +63,20 @@
         });
 
         clearBtn.addEventListener("click", (event) => {
-            if(!confirmClear){
+            if(confirmClear === clearStates.IDLE){
                 showMsg("blue", "Are you sure to clear the list? (Click again to proceed!)");
-                confirmClear = true;
+                confirmClear = clearStates.CONFIRMING_CLEAR;
                 return;
             }
-
-            while(root.firstChild){
-                root.removeChild(root.firstChild);
+            if(confirmClear === clearStates.CONFIRMING_CLEAR){
+                while(root.firstChild){
+                    root.removeChild(root.firstChild);
+                }
+                showMsg("green", "Cleared!");
+                confirmClear = clearStates.CONFIRMED; // DEBUG
+                resetClearState();                    // RESET TO IDLE
+                return;
             }
-            resetClearState();
-            showMsg("green", "Cleared!");
-            return;
         });
     </script>
 </body>

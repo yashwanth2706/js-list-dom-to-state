@@ -13,13 +13,13 @@
     <input id="clearBtn" type="button" name="clearBtn" value="Clear">
     <ul id="root"></ul>
     <script>
-        const clearStates = {
+        const clearState = {
             IDLE : "idle",
             CONFIRMING_CLEAR : "confirmingClear",
             CONFIRMED : "cleared",
         };
 
-        let confirmClear = clearStates.IDLE;
+        let confirmClearState = clearState.IDLE;
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -32,8 +32,35 @@
             return;
         }
 
+        function clearList() {
+            while(root.firstChild) {
+            root.removeChild(root.firstChild);
+            }
+        }
+
+        function transition(action){
+            switch(confirmClearState){
+                case clearState.IDLE:
+                    if(action === "CLICK_CLEAR"){
+                        confirmClearState = clearState.CONFIRMING_CLEAR;
+                        showMsg("blue", "Are you sure to clear the list? (Click again to proceed!)");
+                    }
+                    break;
+                case clearState.CONFIRMING_CLEAR:
+                    if(action === "CLICK_CLEAR"){
+                        clearList();
+                        showMsg("green", "Cleared!")
+                        confirmClearState = clearState.IDLE;
+                    }
+                    if(action === "ADD_ITEM"){
+                        confirmClearState = clearState.IDLE;
+                    }
+                    break;
+            }
+        }
+
         function resetClearState(){
-            confirmClear = clearStates.IDLE;
+            confirmClearState = clearState.IDLE;
             return;
         }
 
@@ -41,9 +68,7 @@
 
             const listItemName = document.getElementById("itemname").value.trim();
 
-            if(confirmClear === clearStates.CONFIRMING_CLEAR){
-                resetClearState();
-            }
+            transition("ADD_ITEM");
 
             if(!listItemName){
                 showMsg("red", "Add an Item to list");
@@ -63,20 +88,7 @@
         });
 
         clearBtn.addEventListener("click", (event) => {
-            if(confirmClear === clearStates.IDLE){
-                showMsg("blue", "Are you sure to clear the list? (Click again to proceed!)");
-                confirmClear = clearStates.CONFIRMING_CLEAR;
-                return;
-            }
-            if(confirmClear === clearStates.CONFIRMING_CLEAR){
-                while(root.firstChild){
-                    root.removeChild(root.firstChild);
-                }
-                showMsg("green", "Cleared!");
-                confirmClear = clearStates.CONFIRMED; // DEBUG
-                resetClearState();                    // RESET TO IDLE
-                return;
-            }
+            transition("CLICK_CLEAR");
         });
     </script>
 </body>

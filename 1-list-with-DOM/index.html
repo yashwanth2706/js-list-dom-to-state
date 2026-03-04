@@ -27,6 +27,7 @@
         let confirmClear = false;       //  Not clearing the list by default
         let editingItem = null;        //   Needs to check if <li> Object element exists, If not it's null (Also null by default) 
         let originalText = null;      //    null by default, when user types in some text, that text will be assigned to originalText
+        let isInEditMode = false;     //   BUG FIX 1: was used in root click handler but never declared — caused ReferenceError crash
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -67,17 +68,22 @@
          * This function is used when the user clicks away from the edited <li> element,
          * effectively cancelling the edit.
          */
-        function restorePreviousItem(originalText){
+        function restorePreviousItem(textToShow){
             // RESTORE previous state for editingItem
             if(!editingItem) return;
 
             // Restore the <li>'s visible text and styling
-                editingItem.textContent = originalText;
+                editingItem.textContent = textToShow;
                 editingItem.title = "Edit";
                 editingItem.style.cursor = "pointer";
 
                 editRow.classList.add("hide-edit-mode");
+                // BUG FIX 4: move editRow back into root after every edit so it is never
+                // stranded inside a <li> that could get removed by the clear button.
+                root.appendChild(editRow);
+
                 editingItem = null;
+                isInEditMode = false;   // BUG FIX 1 (cont): reset the flag on exit
         }
 
         /**
@@ -144,15 +150,26 @@
                 return;
             }
 
-            while(root.firstChild){
-                root.removeChild(root.firstChild);
+            // BUG FIX 4 (cont): if clearing while in edit mode, safely exit first so editRow
+            // is moved back to root before we start removing children.
+            if(isInEditMode){
+                restorePreviousItem(originalText);
             }
+
+            // Remove only <li> elements, leaving the editRow <span> untouched in root.
+            const listItems = root.querySelectorAll('li');
+            listItems.forEach(li => root.removeChild(li));
+
             resetClearState();
             showMsg("green", "Cleared!");
             return;
         });
 
         root.addEventListener("click", (event) => {
+            // BUG FIX 2: clicks from inside editRow (the input, Edit btn, Cancel btn) bubble up
+            // to root and would re-trigger enableEditMode. Guard against that here.
+            if(event.target.closest('#editRow')) return;
+
             const listItemClicked = event.target.closest('li');
             if(!listItemClicked){
                 showMsg("red", `Nothing to edit: ${listItemClicked}`);
@@ -168,7 +185,7 @@
 
         cancelBtn.addEventListener("click", (event) => {
             restorePreviousItem(originalText);
-            showMsg("green", `Canceld edit, restored previous state: ${originalText}`);
+            showMsg("green", `Cancelled edit, restored: ${originalText}`);
         });
 
         editBtn.addEventListener("click", (event) => {
@@ -176,8 +193,13 @@
                 showMsg("red", `Update the ${originalText} item to edit`);
                 return;
             }
-            restorePreviousItem(editInput.value);
-            showMsg("green", `Updated: [${originalText}] to [${editInput.value}]`);
+            // BUG FIX 3: save both values before calling restorePreviousItem, because that
+            // function sets editingItem = null and isInEditMode = false, and the message
+            // needs the old originalText captured first.
+            const oldText = originalText;
+            const newText = editInput.value.trim();
+            restorePreviousItem(newText);
+            showMsg("green", `Updated: [${oldText}] to [${newText}]`);
         });
 
     </script>

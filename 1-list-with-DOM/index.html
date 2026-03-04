@@ -9,15 +9,15 @@
     Add to list:
     <span id="errorMsg"></span><br><br>
     <input id="itemname" type="text" name="text" placeholder="Add to list">
-    <input id="addBtn" type="button" name="addBtn" value="Add">
-    <input id="clearBtn" type="button" name="clearBtn" value="Clear">
-    <ul id="root">
-        <li id="editRow" class="hide-edit-mode">
+    <input id="addBtn" title="Add item to list" type="button" name="addBtn" value="Add">
+    <input id="clearBtn" title="Clear list" type="button" name="clearBtn" value="Clear">
+    <ol id="root">
+        <span id="editRow" class="hide-edit-mode">
             <input id="editInput" type="text" name="editModeTextField">
-            <button id="updateBtn">Update</button>
-            <button id="cancelBtn">Cancel</button>
-        </li>
-    </ul>
+            <button id="editBtn" title="Edit Item">Edit</button>
+            <button id="cancelBtn" title="Cancel edit action">Cancel</button>
+        </span>
+    </ol>
     <style>
         .hide-edit-mode{
             display: none;
@@ -36,7 +36,7 @@
         // Edit Mode
         const editRow = document.getElementById("editRow");
         const editInput = document.getElementById("editInput");
-        const updateBtn = document.getElementById("updateBtn");
+        const editBtn = document.getElementById("editBtn");
         const cancelBtn = document.getElementById("cancelBtn");
 
         /**
@@ -73,7 +73,7 @@
 
             // Restore the <li>'s visible text and styling
                 editingItem.textContent = originalText;
-                editingItem.title = "Edit/Delete";
+                editingItem.title = "Edit";
                 editingItem.style.cursor = "pointer";
 
                 editRow.classList.add("hide-edit-mode");
@@ -109,6 +109,7 @@
 
             editingItem = item;
             editInput.focus();
+            return;
         }
 
         addToListBtn.addEventListener("click", (event) => {
@@ -126,7 +127,7 @@
 
             const listItem = document.createElement('li');
             listItem.textContent = listItemName;
-            listItem.title = "Edit/Delete";
+            listItem.title = "Edit";
             listItem.style.cursor = "pointer";
             root.append(listItem);
 
@@ -157,8 +158,28 @@
                 showMsg("red", `Nothing to edit: ${listItemClicked}`);
                 return;
             }
-            enableEditMode(listItemClicked);
+            if(!isInEditMode){
+                isInEditMode = true;
+                enableEditMode(listItemClicked);
+                return;
+            }
+            return;
         });
+
+        cancelBtn.addEventListener("click", (event) => {
+            restorePreviousItem(originalText);
+            showMsg("green", `Canceld edit, restored previous state: ${originalText}`);
+        });
+
+        editBtn.addEventListener("click", (event) => {
+            if(!editInput.value.trim()){
+                showMsg("red", `Update the ${originalText} item to edit`);
+                return;
+            }
+            restorePreviousItem(editInput.value);
+            showMsg("green", `Updated: [${originalText}] to [${editInput.value}]`);
+        });
+
     </script>
 </body>
 </html>

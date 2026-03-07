@@ -226,6 +226,9 @@
             const listItemClicked = event.target.closest('li');
             
             if(isInDeleteMode){
+                if(!listItemClicked){
+                    return;
+                }
                 if (listItemClicked.dataset.marked === "true") {
                     listItemClicked.dataset.marked = "false";
                     listItemClicked.style.color = "orange";

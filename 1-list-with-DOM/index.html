@@ -11,6 +11,7 @@
     <input id="itemname" type="text" name="text" placeholder="Add to list">
     <input id="addBtn" title="Add item to list" type="button" name="addBtn" value="Add">
     <input id="clearBtn" title="Clear list" type="button" name="clearBtn" value="Clear">
+    <button id="deleteBtn" title="Enter Delete Mode">Delete</button>
     <ol id="root">
         <span id="editRow" class="hide-edit-mode">
             <input id="editInput" type="text" name="editModeTextField">
@@ -28,6 +29,7 @@
         let editingItem = null;        //   Needs to check if <li> Object element exists, If not it's null (Also null by default) 
         let originalText = null;      //    null by default, when user types in some text, that text will be assigned to originalText
         let isInEditMode = false;     //   BUG FIX 1: was used in root click handler but never declared — caused ReferenceError crash
+        let isInDeleteMode = false;
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -39,6 +41,7 @@
         const editInput = document.getElementById("editInput");
         const editBtn = document.getElementById("editBtn");
         const cancelBtn = document.getElementById("cancelBtn");
+        const deleteBtn = document.getElementById("deleteBtn");
 
         /**
          * Displays a message on the page with the given color and text.
@@ -118,7 +121,40 @@
             return;
         }
 
+        function exitDeleteMode() {
+            root.querySelectorAll('li[data-marked="true"]').forEach(li => {
+                li.dataset.marked = "false";
+                li.dataset.color = "black";
+            });
+            root.style.color = "black";
+            isInDeleteMode = false;
+        }
+
+        function confirmDeletion() {
+            const marked = root.querySelectorAll('li[data-marked="true"]');
+            if (marked.length === 0) {
+                showMsg("red", "No items selected.");
+                exitDeleteMode();
+                return;
+            }
+            marked.forEach(li => li.remove());
+            exitDeleteMode();
+        }
+
+        function enableDeleteMode() {
+            isInDeleteMode = true;
+            showMsg("red", "delete mode enabled");
+            root.style.color = "orange";
+        }
+
         addToListBtn.addEventListener("click", (event) => {
+
+            if(isInDeleteMode){
+                isInDeleteMode = false;
+                exitDeleteMode();
+                showMsg("green", "Exit DELETE MODE")
+                return;
+            }
 
             const listItemName = document.getElementById("itemname").value.trim();
 
@@ -171,6 +207,18 @@
             if(event.target.closest('#editRow')) return;
 
             const listItemClicked = event.target.closest('li');
+            
+            if(isInDeleteMode){
+                if (listItemClicked.dataset.marked === "true") {
+                    listItemClicked.dataset.marked = "false";
+                    listItemClicked.style.color = "orange";
+                } else {
+                    listItemClicked.dataset.marked = "true";
+                    listItemClicked.style.color = "red";
+                }
+                return;
+            }
+
             if(!listItemClicked){
                 showMsg("red", `Nothing to edit: ${listItemClicked}`);
                 return;
@@ -200,6 +248,18 @@
             const newText = editInput.value.trim();
             restorePreviousItem(newText);
             showMsg("green", `Updated: [${oldText}] to [${newText}]`);
+        });
+
+        deleteBtn.addEventListener("click", (event) => {
+            
+            if(!isInDeleteMode) {
+                enableDeleteMode();
+                return;
+            }
+
+            if(isInDeleteMode){
+                confirmDeletion();
+            }
         });
 
     </script>

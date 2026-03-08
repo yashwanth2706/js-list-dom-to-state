@@ -6,6 +6,11 @@
     <title>List</title>
 </head>
 <body>
+    <style>
+        .hide-edit-mode{
+            display: none;
+        }
+    </style>
     Add to list:
     <span id="errorMsg"></span><br><br>
     <input id="itemname" type="text" name="text" placeholder="Add to list">
@@ -19,17 +24,13 @@
             <button id="cancelBtn" title="Cancel edit action">Cancel</button>
         </span>
     </ol>
-    <style>
-        .hide-edit-mode{
-            display: none;
-        }
-    </style>
     <script>
         let confirmClear = false;       //  Not clearing the list by default
         let editingItem = null;        //   Needs to check if <li> Object element exists, If not it's null (Also null by default) 
         let originalText = null;      //    null by default, when user types in some text, that text will be assigned to originalText
         let isInEditMode = false;     //   BUG FIX 1: was used in root click handler but never declared — caused ReferenceError crash
         let isInDeleteMode = false;
+        let confirmDelete = false;
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -127,6 +128,7 @@
                 li.style.color = "black";
             });
             isInDeleteMode = false;
+            confirmDelete = false;
         }
 
         function confirmDeletion() {
@@ -136,9 +138,18 @@
                 exitDeleteMode();
                 return;
             }
-            marked.forEach(li => li.remove());
-            showMsg("red", `DELETED: ${marked.length} item(s) and EXIT DELETE MODE`);
-            exitDeleteMode();
+            if(!confirmDelete){
+                showMsg("blue", `sure to delete ${marked.length} items(s)? Click delete again to confirm!`);
+                confirmDelete = true;
+                return;
+            }
+            if(confirmDelete){
+                confirmDelete = false;
+                marked.forEach(li => li.remove());
+                showMsg("red", `DELETED: ${marked.length} item(s) and EXIT DELETE MODE`);
+                exitDeleteMode();
+                return;
+            }
         }
 
         function enableDeleteMode() {
@@ -223,6 +234,9 @@
         root.addEventListener("click", (event) => {
             // BUG FIX 2: clicks from inside editRow (the input, Edit btn, Cancel btn) bubble up
             // to root and would re-trigger enableEditMode. Guard against that here.
+            if(confirmClear){
+                resetClearState();
+            }
             if(event.target.closest('#editRow')) return;
 
             const listItemClicked = event.target.closest('li');
@@ -255,7 +269,7 @@
 
         cancelBtn.addEventListener("click", (event) => {
             restorePreviousItem(originalText);
-            showMsg("green", `Cancelled edit, restored: ${originalText}`);
+            showMsg("green", `Restored: ${originalText} - [CANCELED EDIT]`);
         });
 
         editBtn.addEventListener("click", (event) => {
@@ -281,6 +295,10 @@
 
             if(isInDeleteMode){
                 confirmDeletion();
+            }
+
+            if(confirmClear){
+                resetClearState();
             }
         });
 

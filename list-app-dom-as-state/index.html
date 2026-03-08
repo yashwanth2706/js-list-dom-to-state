@@ -6,7 +6,7 @@
     <title>List</title>
 </head>
 <body>
-    
+
     <link rel="stylesheet" href="./assets/css/edit-mode.css">
 
     Add to list:
@@ -28,7 +28,7 @@
         const addToListBtn = document.getElementById("addBtn");
         const clearBtn = document.getElementById("clearBtn");
         const root = document.getElementById("root");
-
+        const itemname = document.getElementById("itemname");
         // Edit Mode
         const editRow = document.getElementById("editRow");
         const editInput = document.getElementById("editInput");
@@ -164,7 +164,7 @@
             listItem.style.cursor = "pointer";
             root.append(listItem);
 
-            document.getElementById("itemname").value = "";
+            itemname.value = "";
         }
 
         addToListBtn.addEventListener("click", (event) => {
@@ -176,7 +176,7 @@
                 return;
             }
 
-            const listItemName = document.getElementById("itemname").value.trim();
+            const listItemName = itemname.value.trim();
 
             if(confirmClear){
                 resetClearState();

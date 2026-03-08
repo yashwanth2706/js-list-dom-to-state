@@ -25,12 +25,6 @@
         </span>
     </ol>
     <script>
-        let confirmClear = false;       //  Not clearing the list by default
-        let editingItem = null;        //   Needs to check if <li> Object element exists, If not it's null (Also null by default) 
-        let originalText = null;      //    null by default, when user types in some text, that text will be assigned to originalText
-        let isInEditMode = false;     //   BUG FIX 1: was used in root click handler but never declared — caused ReferenceError crash
-        let isInDeleteMode = false;
-        let confirmDelete = false;
 
         const message = document.getElementById("errorMsg");
         const addToListBtn = document.getElementById("addBtn");
@@ -325,5 +319,6 @@
         });
 
     </script>
+    <script src="./assets/js/stateVariables.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ addToListBtn.addEventListener("click", () => {
 
     if(isInDeleteMode){
         isInDeleteMode = false;
-        exitDeleteMode();
+        disableDeleteMode();
         showMsg("green", "Exit DELETE MODE")
         return;
     }

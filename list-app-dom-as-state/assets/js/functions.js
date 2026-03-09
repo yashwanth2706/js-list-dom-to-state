@@ -20,6 +20,11 @@ function resetClearState(){
         return;
     }
 
+function resetEditingItem() {
+        editingItem = null;
+        return;
+    }
+
 /**
  * Resets the previously edited <li> element to its original state.
  * If there is no previously edited element, this function does nothing.
@@ -41,27 +46,35 @@ function restorePreviousItem(textToShow) {
         // stranded inside a <li> that could get removed by the clear button.
         root.appendChild(editRow);
 
-        editingItem = null;
-        isInEditMode = false;   // reset the flag on exit
+        resetEditingItem();
+        disableEditMode();
         return;
     }
 
 /**
- * Enables edit mode for the given <li> element.
- * If the user is currently editing another <li> element, that element is restored to its original state.
- * The given <li> element is then cleared of its visible text and the edit mode row is appended to it.
- * The user is then shown a message indicating that they are now editing the given <li> element.
- * The user's focus is set to the edit mode text input field.
- * 
- * @param {HTMLLIElement} item - The <li> element to enable edit mode for.
+ * Resets the value of the itemname input field to an empty string.
+ * This function is used to clear the input field after adding a new item to the list.
+ * itemname is DOM refference.
  */
+function resetInputField() {
+        itemname.value = "";
+    }
 
+/**
+ * Adds a new <li> element to the main list container with the given text.
+ * Sets the title attribute of the new <li> element to "Edit".
+ * Sets the style cursor of the new <li> element to "pointer".
+ * Appends the new <li> element to the main list container.
+ * Resets input field after adding the new item.
+ * 
+ * @param {string} name - The text to display in the new <li> element.
+ */
 function addItemToList(name) {
         const listItem = document.createElement('li');
         listItem.textContent = name;
         listItem.title = "Edit";
         listItem.style.cursor = "pointer";
         root.append(listItem);
-        itemname.value = "";
+        resetInputField();
         return;
     }

@@ -4,7 +4,7 @@ addToListBtn.addEventListener("click", () => {
     if(isInDeleteMode){
         isInDeleteMode = false;
         disableDeleteMode();
-        showMsg("green", "Exit DELETE MODE")
+        showMsg("green", "DELETE MODE: EXITED");
         return;
     }
 
@@ -69,7 +69,7 @@ clearBtn.addEventListener("click", () => {
 
     if(!confirmClear) {
         showMsg("blue", "Are you sure to clear the list? (Click again to proceed!)");
-        confirmClear = true;
+        setConfirmClear();
         return;
     }
 
@@ -85,7 +85,7 @@ root.addEventListener("click", (event) => {
 
     // clicks from inside editRow (the input, Edit btn, Cancel btn) bubble up
     // to root and would re-trigger enableEditMode. Guard against that here.
-    if(confirmClear) {
+    if(isConfirmClearActive()) {
         resetClearState();
     }
     
@@ -93,16 +93,18 @@ root.addEventListener("click", (event) => {
 
     const listItemClicked = event.target.closest('li');
             
-    if(isInDeleteMode) {
+    if(isInDeleteModeActive()) {
         if(!listItemClicked) {
             return;
         }
         if (listItemClicked.dataset.marked === "true") {
             listItemClicked.dataset.marked = "false";
             listItemClicked.style.color = "purple";
+            updateDeleteConfirmationMsg(root.querySelectorAll('li[data-marked="true"]'));
         } else {
             listItemClicked.dataset.marked = "true";
             listItemClicked.style.color = "red";
+            updateDeleteConfirmationMsg(root.querySelectorAll('li[data-marked="true"]'));
         }
         return;
     }
@@ -111,8 +113,8 @@ root.addEventListener("click", (event) => {
         showMsg("red", `Nothing to edit: ${listItemClicked}`);
         return;
     }
-    if(!isInEditMode) {
-        isInEditMode = true;
+
+    if(!isInEditModeActive()) {
         enableEditMode(listItemClicked);
         return;
     }

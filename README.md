@@ -237,11 +237,11 @@ Open DevTools and add breakpoints. Try to answer:
 
 ### Experiment 2: Add a Feature
 
-Try adding a "Mark as Complete" toggle:
+Try adding a search/filter feature to find items by partial text match:
 
 - You'll quickly see why adding state is painful
 - You'll need to update multiple files
-- You'll face edge cases with existing modes
+- You'll face edge cases with existing modes (what happens if you filter while editing?)
 
 ### Experiment 3: Compare Approaches
 

@@ -92,3 +92,25 @@ function setConfirmDelete() {
 function isConfirmDeleteActive() {
     return confirmDelete;
 }
+
+function setConfirmClear() {
+    confirmClear = true;
+    return;
+}
+
+function isConfirmClearActive() {
+    return confirmClear;
+}
+
+function setIsInEditMode() {
+    isInEditMode = true;
+    return;
+}
+
+function resetIsInEditMode() {
+    disableEditMode();
+}
+
+function isInEditModeActive() {
+    return isInEditMode;
+}

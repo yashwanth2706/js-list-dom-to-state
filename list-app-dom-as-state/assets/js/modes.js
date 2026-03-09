@@ -9,6 +9,8 @@
  */
 function enableEditMode(item) {
     
+        setIsInEditMode();
+
         if(item === editRow) return;
 
         if(editingItem !== item){
@@ -30,6 +32,12 @@ function enableEditMode(item) {
         editInput.focus();
         return;
     }
+
+function updateDeleteConfirmationMsg(markedNumber) {
+    let marked = markedNumber.length;
+    showMsg("blue", `sure to delete ${marked} items(s)? Click delete again to confirm!/ Deselect all items to cancel!`);
+    return;
+}
 
 /**
  * Enables delete mode for the list.
@@ -57,22 +65,23 @@ function enableDeleteMode() {
 function confirmDeletion() {
 
         const marked = root.querySelectorAll('li[data-marked="true"]');
+        let numberOfItems = marked.length;
 
-        if (marked.length === 0) {
+        if (numberOfItems === 0) {
                 showMsg("red", "No items selected: [DELETE MODE: EXITED]");
                 disableDeleteMode();
                 return;
         }
 
         if(!isConfirmDeleteActive()) {
-                showMsg("blue", `sure to delete ${marked.length} items(s)? Click delete again to confirm!/ Deselect all items to cancel!`);
+                updateDeleteConfirmationMsg(root.querySelectorAll('li[data-marked="true"]'));
                 setConfirmDelete();
                 return;
         }
 
         if(isConfirmDeleteActive()) {
                 marked.forEach(li => li.remove());
-                showMsg("red", `DELETED: ${marked.length} item(s) and DELETE MODE: EXITED`);
+                showMsg("red", `DELETED: ${numberOfItems} item(s) and DELETE MODE: EXITED`);
                 disableDeleteMode();
                 return;
         }
@@ -89,6 +98,10 @@ function disableDeleteMode() {
         isInDeleteMode = false;
         confirmDelete = false;
     }
+
+function isInDeleteModeActive() {
+    return isInDeleteMode;
+}
 
 function disableEditMode() {
     isInEditMode = false;

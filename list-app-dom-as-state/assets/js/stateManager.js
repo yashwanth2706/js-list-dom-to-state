@@ -53,3 +53,11 @@ function setIsInEditMode() {
 function isInEditModeActive() {
     return isInEditMode;
 }
+
+function textStoredInListItem() {
+    return originalText;
+}
+
+function inputTextInEditMode() {
+    return editInput.value;
+}

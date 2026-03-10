@@ -52,8 +52,9 @@ clearBtn.addEventListener("click", () => {
 
     // if clearing while in edit mode, safely exit first so editRow
     // is moved back to root before we start removing children.
-    if(isInEditMode) {
-        restorePreviousItem(originalText);
+    if(isInEditModeActive()) {
+        showMsg("blue", `Complete cancel/edit for [${textStoredInListItem()}] (to) => [${inputTextInEditMode()}] and try again, [CANNOT ENTER CLEAR MODE]`);
+        return;
     }
 
     if(isInDeleteMode) {
@@ -120,7 +121,7 @@ root.addEventListener("click", (event) => {
     }
 
     if(isInEditModeActive()) {
-        restorePreviousItem(originalText);
+        restorePreviousItem(textStoredInListItem());
         enableEditMode(listItemClicked);
         return;
     }
@@ -130,24 +131,24 @@ root.addEventListener("click", (event) => {
 
 // CANCEL
 cancelBtn.addEventListener("click", () => {
-    restorePreviousItem(originalText);
-    showMsg("green", `Restored: ${originalText} - [CANCELED EDIT]`);
+    restorePreviousItem(textStoredInListItem());
+    showMsg("green", `Restored: ${textStoredInListItem()} - [CANCELED EDIT]`);
     return;
 });
 
 // EDIT
 editBtn.addEventListener("click", () => {
 
-    if(!editInput.value.trim()) {
-        showMsg("red", `Update the ${originalText} item to edit`);
+    if(!inputTextInEditMode().trim()) {
+        showMsg("red", `Update the ${textStoredInListItem()} item to edit`);
         return;
     }
 
     // Save both values before calling restorePreviousItem, because that
     // function sets editingItem = null and isInEditMode = false, and the message
-    // needs the old originalText captured first.
-    const oldText = originalText;
-    const newText = editInput.value.trim();
+    // needs the old textStoredInListItem() captured first.
+    const oldText = textStoredInListItem();
+    const newText = inputTextInEditMode().trim();
 
     restorePreviousItem(newText);
     showMsg("green", `Updated: [${oldText}] to [${newText}]`);
@@ -158,20 +159,20 @@ editBtn.addEventListener("click", () => {
 deleteBtn.addEventListener("click", () => {
 
     if(isInEditModeActive()) {
-        showMsg("red", `Complete cancel/edit for [${editInput.value}] and try again, [CANNOT ENTER DELETE MODE]`);
+        showMsg("blue", `Complete cancel/edit for [${textStoredInListItem()}] (to) => [${inputTextInEditMode()}] and try again, [CANNOT ENTER DELETE MODE]`);
         return;
     }
             
-    if(!isInDeleteMode) {
+    if(!isInDeleteModeActive()) {
         enableDeleteMode();
         return;
     }
 
-    if(isInDeleteMode) {
+    if(isInDeleteModeActive()) {
         confirmDeletion();
     }
 
-    if(confirmClear) {
+    if(isConfirmClearActive()) {
         resetClearState();
     }
     return;
